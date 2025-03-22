@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.orm import session
 
 from app.database import SessionDep
@@ -12,9 +12,13 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_books(session: SessionDep):
-    books = session.query(Book).all()
-    return {"books": books}
+async def get_books(
+        session: SessionDep,
+        limit: int = Query(1, ge=1),
+        offset: int = Query(0, ge=0),
+):
+    books = session.query(Book).offset(offset).limit(limit).all()
+    return {"books": books, "limit": limit, "offset": offset}
 
 
 @router.get("/{book_id}")
