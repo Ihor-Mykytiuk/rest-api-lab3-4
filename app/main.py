@@ -4,27 +4,12 @@ from typing import Annotated
 from fastapi import FastAPI, Depends
 from sqlmodel import SQLModel, Session, create_engine
 from .routers import books
-import os
-from dotenv import load_dotenv
-from .models import Book
-
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+from app.database import engine
+from app.models import Book
 
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
 
 
 @asynccontextmanager
