@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException, Query
 
 from app.database import SessionDep
@@ -14,10 +16,17 @@ router = APIRouter(
 async def get_books(
         session: SessionDep,
         limit: int = Query(1, ge=1),
-        offset: int = Query(0, ge=0),
+        cursor: Optional[int] = Query(None, ge=1),
 ):
-    books = session.query(Book).offset(offset).limit(limit).all()
-    return {"books": books, "limit": limit, "offset": offset}
+    query = session.query(Book).order_by(Book.id)
+    if cursor is not None:
+        query = query.filter(Book.id > cursor)
+
+    books = query.limit(limit).all()
+
+    next_cursor = books[-1].id if books else None
+
+    return {"books": books, "limit": limit, "next_cursor": next_cursor}
 
 
 @router.get("/{book_id}", response_model=Book)
