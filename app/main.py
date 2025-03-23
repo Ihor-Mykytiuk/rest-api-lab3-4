@@ -1,11 +1,9 @@
 from contextlib import asynccontextmanager
-from typing import Annotated
 
-from fastapi import FastAPI, Depends
-from sqlmodel import SQLModel, Session, create_engine
+from fastapi import FastAPI
+from sqlmodel import SQLModel
 from .routers import books
 from app.database import engine
-from app.models import Book
 
 
 def create_db_and_tables():
